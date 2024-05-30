@@ -1,4 +1,4 @@
-# Bitcoin Trading Bot
+# ChatGPT BTC trade - GPT4 Bitcoin Trading Bot
 
 ## 概要
 
