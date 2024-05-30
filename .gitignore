@@ -1,0 +1,53 @@
+
+# バイトコードファイル
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ジャンクファイル
+*.bak
+*.swp
+*.swo
+*.tmp
+*.log
+
+# ビルドファイル
+build/
+dist/
+*.egg-info/
+
+#外部ライブラリ
+lib/
+
+# 仮想環境
+venv/
+.env/
+.pyenv/
+.venv/
+
+# 設定ファイル
+config.ini
+config.json
+
+# Jupyterノートブック
+.ipynb_checkpoints/
+
+#その他
+.env
+*.workspace
+todo.txt
+playground/
+.playground/
+
+cache_data.json
+client_secrets.json
+site_configs.json
+
+resource/
+temp/
+_bk
+token.pickle
+*.code-workspace
+log/
+logs/
