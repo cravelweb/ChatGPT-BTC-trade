@@ -1,4 +1,3 @@
-# trading_decision.py
 import openai
 import json
 from datetime import datetime
@@ -37,60 +36,62 @@ class TradingDecision:
 
         messages = self.load_messages(market_data, portfolio_data, order_data, execution_data, order_book_data, current_time)
 
-        functions = [
+        tools = [
             {
-                "name": "order_cancel",
-                "description": "Function calling to cancel an open BTC order.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "order_id": {"type": "string", "description": "The child_order_acceptance_id of the order to be canceled."}
-                    },
-                    "required": ["order_id"]
+                "type": "function",
+                "function": {
+                    "name": "order_method",
+                    "description": "Function calling to place a BTC buy or sell order. The minimum order size is 0.001 BTC.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "side": {
+                                "type": "string",
+                                "enum": ["BUY", "SELL"],
+                                "description": "The direction of the trade. 'BUY' or 'SELL'."
+                            },
+                            "price": {"type": "number", "description": "The order price in JPY."},
+                            "size": {"type": "number", "description": "The order quantity. The minimum order size is 0.001 BTC."},
+                            "order_type": {
+                                "type": "string",
+                                "enum": ["LIMIT", "STOP"],
+                                "description": "The type of order. Specify 'LIMIT' for limit order or 'STOP' for stop order."
+                            },
+                            "trigger_price": {"type": "number", "description": "The trigger price. Only specify for 'STOP' orders."}
+                        },
+                        "required": ["side", "price", "size", "order_type"]
+                    }
                 }
             },
             {
-                "name": "order_method",
-                "description": "Function calling to place a BTC buy or sell order. The minimum order size is 0.001 BTC.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "side": {
-                            "type": "string",
-                            "enum": ["BUY", "SELL"],
-                            "description": "The direction of the trade. 'BUY' or 'SELL'."
+                "type": "function",
+                "function": {
+                    "name": "order_cancel",
+                    "description": "Function calling to cancel an open BTC order.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "order_id": {"type": "string", "description": "The child_order_acceptance_id of the order to be canceled."}
                         },
-                        "price": {"type": "number", "description": "The order price in JPY."},
-                        "size": {"type": "number", "description": "The order quantity. The minimum order size is 0.001 BTC."},
-                        "order_type": {
-                            "type": "string",
-                            "enum": ["LIMIT", "STOP"],
-                            "description": "The type of order. Specify 'LIMIT' for limit order or 'STOP' for stop order."
-                        },
-                        "trigger_price": {"type": "number", "description": "The trigger price. Only specify for 'STOP' orders."}
-                    },
-                    "required": ["side", "price", "size", "order_type"]
+                        "required": ["order_id"]
+                    }
                 }
             }
         ]
 
-        # print(messages)
-
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=messages,
-            functions=functions,
-            function_call="auto"
+            tools=tools,
+            tool_choice="required"
         )
 
-        #print(response)
+        logger.debug(f"Response: {response}")
 
-        if response.choices[0].message.content:
-            logger.debug(f"message content: {response.choices[0].message.content}")
-
-        if response.choices and response.choices[0].message and response.choices[0].message.function_call:
-            function_call = response.choices[0].message.function_call
-            function_call.arguments = json.loads(function_call.arguments)  # JSON文字列を辞書に変換
-            return function_call
+        if response.choices[0].message.tool_calls:
+            tool_calls = response.choices[0].message.tool_calls
+            tool_call = tool_calls[0]
+            tool_call.arguments = json.loads(tool_call.function.arguments)
+            return tool_call
         else:
             return None

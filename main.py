@@ -1,6 +1,8 @@
+# main.py
 import time
 import os
 import traceback
+import json
 from dotenv import load_dotenv
 from bitflyer_client import BitflyerClient
 from price_history import PriceHistory
@@ -85,7 +87,6 @@ max_errors = 3
 ticker_interval = 60  # ティッカーの取得間隔（秒）
 trading_interval = 300  # 売買判断の間隔（秒）
 last_trading_time = 0
-
 while True:
     try:
         current_time = time.time()
@@ -112,8 +113,6 @@ while True:
 
                 # 約定履歴の取得
                 execution_data = execution_history.get_execution_history()
-                
-                #print(execution_data)
 
                 # 注文データの取得
                 open_orders_pre = trading.get_open_orders()
@@ -135,24 +134,15 @@ while True:
                     logger.info("Trading decision: HOLD / WAIT")
                 else:
                     # 関数呼び出しが含まれている場合の処理
-                    if hasattr(decision, 'name'):
-                        if decision.name == 'order_method':
-                            arguments = decision.arguments
-                            side = arguments['side']
-                            price = float(arguments['price'])
-                            size = float(arguments['size'])
-                            order_type = arguments['order_type']
-                            logger.info(f"Trading decision: {side} / price: {price:.8f} / size: {size:.8f} / order_type: {order_type}")
+                    if hasattr(decision, 'type') and decision.type == 'function':
+                        function_name = decision.function.name
+                        arguments = json.loads(decision.function.arguments)
 
-                            # 注文の実行
+                        if function_name == 'order_method':
+                            logger.info(f"Trading decision: {arguments['side']} / price: {arguments['price']:.8f} / size: {arguments['size']:.8f} / order_type: {arguments['order_type']}")
                             execute_order(decision)
-                            
-                        elif decision.name == 'order_cancel':
-                            arguments = decision.arguments
-                            order_id = arguments['order_id']
-                            logger.info(f"Cancel order: {order_id}")
-
-                            # 注文のキャンセル
+                        elif function_name == 'order_cancel':
+                            logger.info(f"Cancel order: {arguments['order_id']}")
                             cancel_order(decision)
 
                 # 注文状況の確認
