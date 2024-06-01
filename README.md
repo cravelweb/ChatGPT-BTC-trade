@@ -6,17 +6,26 @@ ChatGPT BTC tradeは、ChatGPTを使って日本円とビットコインの売�
 
 ## 機能
 
-- ビットコインの価格履歴の取得
+- ビットコインの価格履歴の取得（CryptoCompare APIを使用）
 - 売買判断の実施（OpenAI APIを使用）
-- 売買注文の実施およびキャンセル
-- 現在の資産残高、オープンオーダー、取引履歴の取得
+- 現在の資産残高、オープンオーダー、取引履歴の取得（bitFlyer Lightning APIを使用）
+- 売買注文の実施およびキャンセル（bitFlyer Lightning APIを使用）
 - 日次のログファイル出力
 
 ## 導入方法
 
-1. リポジトリをクローンします。
+1. APIキーを取得します。必要なキーは以下の4種類です。
 
-2. 仮想環境を作成して有効化します。
+- bitFlyer Lightning APIキー
+- bitFlyer Lightning APIシークレット
+- OpenAI APIキー
+- CryptoCompare APIキー
+
+それぞれの取得方法は各サービスの案内等を参照してください。
+
+2. リポジトリをクローンします。
+
+3. 仮想環境を作成して有効化します。
 
     ```sh
     # 仮想環境の作成
@@ -29,18 +38,19 @@ ChatGPT BTC tradeは、ChatGPTを使って日本円とビットコインの売�
     source venv/bin/activate
     ```
 
-3. 必要なライブラリをインストールします。
+4. 必要なライブラリをインストールします。
 
     ```sh
     pip install -r requirements.txt
     ```
 
-4. `.env`ファイルをプロジェクトのルートディレクトリに作成し、以下のようにBitFlyer APIキーとOpenAI APIキーを設定します。
+5. `.env`ファイルをプロジェクトのルートディレクトリに作成し、取得したAPIキーを記述します。
 
     ```
-    BITFLYER_API_KEY=your_bitflyer_api_key
-    BITFLYER_API_SECRET=your_bitflyer_api_secret
-    OPENAI_CRYPT_API_KEY=your_openai_api_key
+    BITFLYER_API_KEY = 'Your Bitflyer API Key'
+    BITFLYER_API_SECRET = 'Your Bitflyer API Secret'
+    OPENAI_API_KEY = 'Your OpenAI API Key'
+    CRYPTCOMPARE_API_KEY = 'Your Cryptocompare API Key'
     ```
 
 ## 実行方法
@@ -58,23 +68,6 @@ ChatGPT BTC tradeは、ChatGPTを使って日本円とビットコインの売�
 
 なお、メインプログラムは実行中はループ動作するようになっているため自動停止しません。
 Ctrl + Cなどの強制停止などを使って適切にプログラムを停止してください。
-
-
-## ディレクトリ構成
-
-bitcoin-trading-bot/
-├── logs/ # ログファイルディレクトリ
-├── .env # 環境変数ファイル
-├── main.py # メインスクリプト
-├── bitflyer_client.py # BitFlyer APIクライアント
-├── price_history.py # 価格履歴モジュール
-├── trading.py # トレードモジュール
-├── portfolio.py # ポートフォリオモジュール
-├── execution_history.py# 約定履歴モジュール
-├── order_book.py # 注文板モジュール
-├── trading_decision.py # 売買判断モジュール
-├── logger_setup.py # ロガー設定モジュール
-└── requirements.txt # 依存関係ファイル
 
 
 ## 注意事項

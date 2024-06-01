@@ -1,0 +1,6 @@
+{
+  "trading_interval": 300,
+  "prompt_file": "samples/messages_default.json",
+  "log_dir": "logs",
+  "cache_file": "price_cache.json"
+}
