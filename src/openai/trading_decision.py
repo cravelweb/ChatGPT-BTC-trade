@@ -25,11 +25,13 @@ class TradingDecision:
         self.openai_api_key = config.openai_api_key
         self.prompt_file_name = config.prompt_file
         self.project_root = config.project_root
+        self.trading_interval = config.trading_interval
         openai.api_key = self.openai_api_key
 
     def load_messages(
         self,
         market_data,
+        ticker_data,
         portfolio_data,
         order_data,
         execution_data,
@@ -53,16 +55,19 @@ class TradingDecision:
         for message in messages:
             message["content"] = message["content"].format(
                 market_data=market_data,
+                ticker_data=ticker_data,
                 portfolio_data=portfolio_data,
                 order_data=order_data,
                 execution_data=execution_data,
                 current_time=current_time,
+                trading_interval=str(int(self.trading_interval / 60)),
             )
         return messages
 
     def get_trading_decision(
         self,
         market_data,
+        ticker_data,
         portfolio_data,
         order_data,
         execution_data,
@@ -76,6 +81,7 @@ class TradingDecision:
 
         messages = self.load_messages(
             market_data,
+            ticker_data,
             portfolio_data,
             order_data,
             execution_data,
@@ -111,8 +117,8 @@ class TradingDecision:
                             "size": {
                                 "type": "number",
                                 "description": "The order quantity in BTC."
-                                "The minimum quantity is 0.001 BTC."
-                                "Decimal value",
+                                "The minimum value is 0.001 BTC, "
+                                "specified in increments of 0.0001 BTC.",
                             },
                             "order_type": {
                                 "type": "string",
@@ -145,7 +151,11 @@ class TradingDecision:
                 "function": {
                     "name": "cancel",
                     "description": "Function calling to cancel an"
-                    "open BTC order.",
+                    "open BTC order."
+                    "This action does not allow new orders to be placed "
+                    "until the next decision cycle, so if you want to place "
+                    "new orders at the same time, "
+                    "use the cancel_and_order function.",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -193,8 +203,8 @@ class TradingDecision:
                             "size": {
                                 "type": "number",
                                 "description": "The order quantity in BTC."
-                                "The minimum quantity is 0.001 BTC."
-                                "Decimal value",
+                                "The minimum value is 0.001 BTC, "
+                                "specified in increments of 0.0001 BTC.",
                             },
                             "order_type": {
                                 "type": "string",
@@ -234,6 +244,8 @@ class TradingDecision:
 
         # print(messages)
 
+        # OpenAIにリクエストを送信
+        # response = None
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=messages,

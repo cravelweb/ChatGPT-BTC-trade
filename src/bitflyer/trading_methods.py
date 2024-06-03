@@ -66,6 +66,12 @@ class BitflyerMethods:
         params = {"product_code": product_code}
         return self.api_client.make_request("GET", endpoint, params=params)
 
+    def get_ticker(self, product_code="BTC_JPY"):
+        """
+        ティッカー情報を取得する
+        """
+        return self._get_ticker_data(product_code)
+
     def get_balance(self):
         """
         残高を取得する

@@ -71,6 +71,7 @@ def handle_trading_decision():
     # decision = None
     decision = decision_maker.get_trading_decision(
         signal_list,
+        market_data.ticker_data,
         market_data.portfolio_data,
         market_data.open_orders,
         market_data.execution_data,
@@ -97,6 +98,11 @@ def main():
     # 変数の初期化
     error_count = 0
     max_errors = 3
+
+    logger.info("Starting trading bot...")
+    logger.info(
+        "Trading interval: %s minutes", int(config.trading_interval / 60)
+    )
 
     while True:
         try:

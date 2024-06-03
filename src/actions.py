@@ -25,6 +25,7 @@ class MarketData:
         self.portfolio_history = portfolio_info["history"]
         self.execution_data = bitflyer_client.get_execution_history()
         self.open_orders = bitflyer_client.get_open_orders()
+        self.ticker_data = bitflyer_client.get_ticker()
 
     def process_currency_data(self, json_data):
         """
